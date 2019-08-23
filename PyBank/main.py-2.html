@@ -1,0 +1,127 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[1]:
+
+
+# Import the operating system module
+import os
+
+
+# In[2]:
+
+
+# Import the module for reading CSV file
+import csv
+
+
+# In[3]:
+
+
+# Specify the file to Read to
+csvpath = os.path.join('Resources', 'budget_data.csv')
+
+
+# In[4]:
+
+
+# Variables
+Total_Months = 0
+Total = 0
+prev_num = 0
+Date_List = []
+Profit_Losses_List = []
+Profit_Losses_change = []
+month_change = []
+
+
+# In[5]:
+
+
+# Open the file using "Read" mode. Specify the variable to hold the contents
+with open(csvpath, 'r', newline='') as csvfile:
+    # CSV reader specifies delimiter and variable that holds contents
+    csvreader = csv.reader(csvfile, delimiter=',')
+    #print(csvreader)
+    
+    # Read the header row first (skip this step if there is now header)
+    csv_header = next(csvreader)
+    #print(f"CSV Header: {csv_header}")
+
+    # Read each row of data after the header
+    for row in csvreader:
+        #print(row)
+        # Calculate Total Months, Total, Average Change, Greatest Increase in Profits, Greatest Decrease in Profits
+        Total_Months = Total_Months + 1
+        Total = Total + int(row[1])
+        # Profit/Losses List
+        Profit_Losses_List.append(int(row[1]))
+        # Date List
+        Date_List.append(row[0])
+
+
+# In[6]:
+
+
+# Average Change
+for numbers in Profit_Losses_List:
+    if Profit_Losses_List.index(numbers) != 0:
+        # Profit/Losses change
+        change = int(numbers) - prev_num
+        Profit_Losses_change.append(change)
+        month_change.append(Date_List[Profit_Losses_List.index(numbers)])
+    prev_num = int(numbers)
+
+
+# In[7]:
+
+
+if Profit_Losses_List.index(numbers) != 0:
+    max_value = max(Profit_Losses_change)
+    max_month = month_change[Profit_Losses_change.index(max_value)]
+    max_month_value = f"{str(max_month)} ({str(max_value)})"
+    min_value = min(Profit_Losses_change)
+    min_month = month_change[Profit_Losses_change.index(min_value)]
+    min_month_value = f"{str(min_month)} ({str(min_value)})"
+    avg_value = round(sum(Profit_Losses_change)/len(Profit_Losses_change),2)
+    output_csv = [str(Total_Months), str(Total), str(avg_value), max_month_value, min_month_value]
+    print("Financial Analysis")
+    print("----------------------------")  
+    print(f"Total Months: {Total_Months}")
+    print(f"Total: ${Total}")
+    print(f"Average  Change: ${avg_value}")
+    print(f"Greatest Increase in Profits: ({max_month}) ${max_value}")
+    print(f"Greatest Decrease in Profits: ({min_month}) ${min_value}")
+else:
+    print(f"No summary to print")
+
+
+# In[8]:
+
+
+# Specify the file to write to
+output_path = os.path.join('Resources', "new.csv")
+
+
+# In[9]:
+
+
+# Open the file using "write" mode. Specify the variable to hold the contents
+with open(output_path, 'w', newline='') as outfile:
+    # Initialize csv.writer
+    csvwriter = csv.writer(outfile, delimiter=',')
+    #print(csvwriter)
+    
+    # Write the header row
+    csvwriter.writerow(["Total Months", "Total", "Average Change", "Greatest Increase in Profits",
+                     "Greatest Decrease in Profits"])
+
+    # Write output
+    csvwriter.writerow(output_csv)
+
+
+# In[10]:
+
+
+get_ipython().system('open Resources/new.csv')
+
